@@ -23,6 +23,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as Device from 'expo-device';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useKeepAwake } from 'expo-keep-awake';
 
 const SERVER_PORT = 8765;
 const SETTINGS_KEY = 'mobilepad_settings_v1';
@@ -138,6 +139,7 @@ async function discoverServer() {
 }
 
 export default function App() {
+  useKeepAwake();
   const [phase, setPhase] = useState('searching'); // searching | not_found | connecting | connected
   const [server, setServer] = useState(null);
   const [error, setError] = useState('');

@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "Mobile Pad",
+    "slug": "mobile-pad",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.xajiraqab.mobilepad"
+    },
+    "android": {
+      "package": "com.xajiraqab.mobilepad",
+      "adaptiveIcon": {
+        "backgroundColor": "#142032",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 24,
+            "targetSdkVersion": 37,
+            "compileSdkVersion": 37,
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "fba6784e-0ce2-4ac1-b639-6f0bc9382f19"
+      }
+    },
+    "owner": "xajiraqab"
+  }
+}

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobile Pad</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { font-family: 'Roboto', system-ui, -apple-system, Segoe UI, Arial, sans-serif; }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0f141b; --bg2: #0b1017; --card: #18212d; --card-border: #273445;
+      --text: #f3f7fb; --muted: #97a8bc; --accent: #66aaff;
+      --brand: #FFF8E1; --btn-bg: rgba(24,33,45,0.72); --btn-border: rgba(78,161,255,0.22);
+      --btn-text: #f3f7fb; --icon-hover: rgba(255,255,255,0.06);
+      --primary: #2ecc71; --primary-hover: #27ae60; --shadow: 0 12px 40px rgba(0,0,0,0.28);
+    }
+    html[data-theme="light"] {
+      color-scheme: light;
+      --bg: #fff8e1; --bg2: #ffefbf; --card: #fffdf5; --card-border: #e6d39a;
+      --text: #3b2f10; --muted: #7a6731; --accent: #c58a00;
+      --brand: #3b2f10; --btn-bg: rgba(255,252,242,0.88); --btn-border: rgba(197,138,0,0.28);
+      --btn-text: #3b2f10; --icon-hover: rgba(59,47,16,0.06);
+      --primary: #2ecc71; --primary-hover: #27ae60; --shadow: 0 12px 40px rgba(59,47,16,0.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%); color: var(--text); }
+    a { color: inherit; text-decoration: none; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 28px 20px 48px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 56px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-size: 28px; font-weight: 800; color: var(--brand); }
+    .brand img { width: 44px; height: 44px; border-radius: 12px; display: block; }
+    .actions { display: flex; align-items: center; gap: 8px; }
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--btn-border);
+      background: transparent; color: var(--btn-text); display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: .15s ease;
+    }
+    .icon-btn:hover { background: var(--icon-hover); }
+    .icon-btn svg { width: 22px; height: 22px; display: block; }
+
+    .hero { text-align: center; padding: 24px 0 40px; }
+    .hero h1 { font-size: clamp(36px, 6vw, 56px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 14px; color: var(--brand); }
+    .hero p { font-size: 18px; color: var(--muted); max-width: 560px; margin: 0 auto; line-height: 1.6; }
+
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 40px 0; }
+    .step {
+      background: var(--card); border: 1px solid var(--card-border); border-radius: 16px;
+      padding: 24px; box-shadow: var(--shadow);
+    }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 10px; background: rgba(46,204,113,0.14);
+      color: var(--primary); display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 14px; margin-bottom: 14px;
+    }
+    .step h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .step p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    .downloads { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 44px; }
+    .dl-btn {
+      display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 12px;
+      font-weight: 700; font-size: 15px; transition: .18s ease; border: 1px solid transparent;
+    }
+    .dl-btn svg { width: 20px; height: 20px; display: block; flex: 0 0 auto; }
+    .dl-primary { background: var(--primary); color: #fff; box-shadow: 0 8px 24px rgba(46,204,113,0.28); }
+    .dl-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .dl-secondary { background: var(--btn-bg); color: var(--btn-text); border-color: var(--btn-border); }
+    .dl-secondary:hover { filter: brightness(1.04); transform: translateY(-1px); }
+
+    .foot { margin-top: 56px; text-align: center; color: var(--muted); font-size: 13px; }
+
+    @media (max-width: 720px) {
+      .steps { grid-template-columns: 1fr; }
+      .topbar { margin-bottom: 40px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand">
+        <img id="brandIcon" src="server/build/appicon.png" alt="Mobile Pad icon" />
+        <span>Mobile Pad</span>
+      </div>
+      <div class="actions">
+        <!-- Replace with your GitHub repository URL -->
+        <a id="githubLink" class="icon-btn" href="https://github.com/your-username/mobilepad" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z"/></svg>
+        </a>
+        <button id="themeBtn" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
+          <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1>Use your phone as a touchpad.</h1>
+        <p>Control your Windows PC cursor from your phone over the same Wi-Fi network.</p>
+      </section>
+
+      <section class="steps" aria-label="How it works">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Start the server</h3>
+          <p>Download and open Mobile Pad on your Windows PC.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Same Wi-Fi</h3>
+          <p>Make sure your phone and PC are connected to the same Wi-Fi network.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Connect & control</h3>
+          <p>Open the app on your phone. It will find the server and connect automatically.</p>
+        </div>
+      </section>
+
+      <section class="downloads" aria-label="Downloads">
+        <!-- Replace WINDOWS_DOWNLOAD_LINK with the actual Windows download URL -->
+        <a class="dl-btn dl-primary" href="WINDOWS_DOWNLOAD_LINK">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+          <span>Download for Windows</span>
+        </a>
+        <!-- Replace ANDROID_DOWNLOAD_LINK with the actual Android download URL -->
+        <a class="dl-btn dl-secondary" href="ANDROID_DOWNLOAD_LINK">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0001.5511-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.2439 13.8533 7.8508 12 7.8508s-3.5902.3931-5.1367 1.0989L4.841 5.4467a.4161.4161 0 00-.5677-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3435-4.1021-2.6892-7.5743-6.1185-9.4396"/></svg>
+          <span>Download for Android</span>
+        </a>
+      </section>
+    </main>
+
+
+  </div>
+
+  <script>
+    const root = document.documentElement;
+    const btn = document.getElementById('themeBtn');
+    const sun = document.getElementById('iconSun');
+    const moon = document.getElementById('iconMoon');
+    const brandIcon = document.getElementById('brandIcon');
+    function applyTheme(t) {
+      t = t === 'light' ? 'light' : 'dark';
+      root.dataset.theme = t;
+      localStorage.setItem('mobilepad-landing-theme', t);
+      sun.style.display = t === 'dark' ? 'block' : 'none';
+      moon.style.display = t === 'light' ? 'block' : 'none';
+      if (brandIcon) brandIcon.src = t === 'dark' ? 'server/build/appicon.png' : 'app/assets/icon-light.png';
+    }
+    applyTheme(localStorage.getItem('mobilepad-landing-theme') || 'dark');
+    btn.addEventListener('click', () => applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'));
+  </script>
+</body>
+</html>

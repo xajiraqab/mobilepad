@@ -1,0 +1,15 @@
+{
+	"fixed": {
+		"file_version": "0.1.0"
+	},
+	"info": {
+		"0409": {
+			"ProductVersion": "0.1.0",
+			"CompanyName": "MobilePad",
+			"FileDescription": "MobilePad touchpad server",
+			"LegalCopyright": "© 2026, MobilePad",
+			"ProductName": "Mobile Pad",
+			"Comments": "MobilePad Windows server"
+		}
+	}
+}

@@ -1,0 +1,38 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Expo / app
+app/.expo/
+app/dist/
+app/web-build/
+app/expo-env.d.ts
+app/android/
+app/ios/
+app/credentials/
+app/credentials.json
+app/*.keystore
+app/*.jks
+app/*.p12
+app/*.pem
+app/*.key
+app/*.mobileprovision
+app/.env*.local
+
+# Server build outputs
+server/bin/
+server/frontend/dist/
+server/frontend/node_modules/
+server/frontend/bindings/
+
+# Wails / Go
+*.syso
+
+# Logs
+*.log

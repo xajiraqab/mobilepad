@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/icon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/style.css" />
+  <title>Mobile Pad</title>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="brand-row">
+        <div class="brand">
+          <img id="brandIcon" src="/icon.png" alt="Mobile Pad" class="brand-icon" />
+          <h1 class="brand-name">Mobile Pad</h1>
+        </div>
+        <div class="header-actions">
+          <button id="trayBtn" class="theme-btn" aria-label="Minimize to tray" title="Minimize to tray">
+            <svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+          </button>
+          <button id="themeBtn" class="theme-btn" aria-label="Toggle theme" title="Toggle theme">
+            <svg id="iconSun" class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <svg id="iconMoon" class="theme-icon hidden" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div id="errorBox" class="error-box hidden"></div>
+
+      <div id="startArea" class="start-area">
+        <button id="startBtn" class="big-start-btn" aria-label="Start server">
+          <span class="start-icon-wrap">
+            <svg class="start-icon" xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>
+            <span class="spinner hidden" id="startSpinner" aria-hidden="true"></span>
+          </span>
+          <span id="startBtnText">Start Server</span>
+        </button>
+      </div>
+
+      <div id="runningArea" class="card hidden">
+        <div class="card-head">
+          <div class="status-row">
+            <span id="statusDot" class="dot dot-on"></span>
+            <span id="statusText" class="status-text">Running</span>
+            <button id="stopBtn" class="btn btn-danger btn-small btn-stop-inline" aria-label="Stop server">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>
+              <span>Stop</span>
+            </button>
+          </div>
+          <span id="clientCount" class="client-count">0 clients</span>
+        </div>
+
+        <div id="clientsList" class="clients-list"></div>
+        <p id="emptyState" class="empty-state">No Clients Connected</p>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

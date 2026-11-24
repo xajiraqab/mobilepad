@@ -138,6 +138,105 @@ async function discoverServer() {
   return null;
 }
 
+const sensitivityStyles = StyleSheet.create({
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  label: { fontSize: 14, fontWeight: '700', letterSpacing: 0.2 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  badge: { minWidth: 44, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, borderWidth: 1, alignItems: 'center' },
+  badgeText: { fontSize: 13, fontWeight: '800' },
+  resetBtn: { width: 32, height: 32, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  trackWrap: { height: 44, justifyContent: 'center', marginBottom: 18 },
+  track: { height: 6, borderRadius: 999, overflow: 'hidden' },
+  fill: { height: '100%', borderRadius: 999 },
+  thumb: { position: 'absolute', width: 24, height: 24, borderRadius: 12, marginLeft: -12, top: 10, borderWidth: 2 },
+});
+
+const SensitivitySlider = React.memo(function SensitivitySlider({ value, onCommit, c }) {
+  const clamp = (v) => Math.min(8, Math.max(1, Math.round(v)));
+  const ratio = (v) => (clamp(v) - 1) / 7;
+  const [display, setDisplay] = useState(clamp(value));
+  const widthRef = useRef(200);
+  const trackXRef = useRef(0);
+  const trackRef = useRef(null);
+  const dragVal = useRef(clamp(value));
+  const pos = useRef(new Animated.Value(ratio(value))).current;
+
+  useEffect(() => {
+    const v = clamp(value);
+    dragVal.current = v;
+    setDisplay(v);
+    pos.setValue(ratio(v));
+  }, [value, pos]);
+
+  const measureTrack = useCallback(() => {
+    const node = trackRef.current;
+    if (node && typeof node.measureInWindow === 'function') {
+      node.measureInWindow((x, _y, w) => {
+        if (typeof x === 'number') trackXRef.current = x;
+        if (typeof w === 'number' && w > 0) widthRef.current = w;
+      });
+    }
+  }, []);
+
+  const updateFromEvent = useCallback((e) => {
+    const pageX = e.nativeEvent.pageX;
+    const x = typeof pageX === 'number' ? pageX - trackXRef.current : e.nativeEvent.locationX;
+    const w = widthRef.current || 200;
+    const r = Math.min(1, Math.max(0, x / w));
+    const v = clamp(1 + r * 7);
+    dragVal.current = v;
+    pos.setValue((v - 1) / 7);
+    setDisplay(v);
+  }, [pos]);
+
+  const commit = useCallback(() => {
+    onCommit(dragVal.current);
+  }, [onCommit]);
+
+  const left = pos.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] });
+
+  return (
+    <>
+      <View style={sensitivityStyles.header}>
+        <Text style={[sensitivityStyles.label, { color: c.muted }]}>Sensitivity</Text>
+        <View style={sensitivityStyles.headerRight}>
+          <View style={[sensitivityStyles.badge, { backgroundColor: c.inputBg, borderColor: c.inputBorder }]}>
+            <Text style={[sensitivityStyles.badgeText, { color: c.text }]}>{display}x</Text>
+          </View>
+          <Pressable style={[sensitivityStyles.resetBtn, { backgroundColor: c.presetBg, borderColor: c.inputBorder }]} onPress={() => onCommit(3)}>
+            <Ionicons name="refresh-outline" size={18} color={c.text} />
+          </Pressable>
+        </View>
+      </View>
+      <View
+        ref={trackRef}
+        style={sensitivityStyles.trackWrap}
+        onLayout={(e) => {
+          widthRef.current = e.nativeEvent.layout.width;
+          measureTrack();
+        }}
+        onStartShouldSetResponder={() => true}
+        onMoveShouldSetResponder={() => true}
+        onResponderTerminationRequest={() => false}
+        onResponderGrant={(e) => { measureTrack(); updateFromEvent(e); }}
+        onResponderMove={updateFromEvent}
+        onResponderRelease={commit}
+        onResponderTerminate={commit}
+      >
+        <View style={[sensitivityStyles.track, { backgroundColor: c.inputBg }]}>
+          <Animated.View style={[sensitivityStyles.fill, { backgroundColor: c.accent, width: left }]} />
+        </View>
+        <Animated.View
+          style={[
+            sensitivityStyles.thumb,
+            { left, backgroundColor: c.card, borderColor: c.accent },
+          ]}
+        />
+      </View>
+    </>
+  );
+});
+
 export default function App() {
   useKeepAwake();
   const [phase, setPhase] = useState('searching'); // searching | not_found | connecting | connected
@@ -150,13 +249,6 @@ export default function App() {
   const [shortcutsModalVisible, setShortcutsModalVisible] = useState(false);
   const shortcutsAnim = useRef(new Animated.Value(0)).current;
   const [sensitivity, setSensitivity] = useState(3);
-  const sliderWidthRef = useRef(200);
-  const updateSensitivityFromX = useCallback((x) => {
-    const w = sliderWidthRef.current || 200;
-    const ratio = Math.max(0, Math.min(1, x / w));
-    const val = 1 + Math.round(ratio * 7);
-    setSensitivity(val);
-  }, []);
   const [showSpace, setShowSpace] = useState(true);
   const [showScrollStrip, setShowScrollStrip] = useState(true);
   const [scrollReverse, setScrollReverse] = useState(true);
@@ -258,6 +350,8 @@ export default function App() {
   // touchpad refs
   const startTouchRef = useRef(null);
   const startLocRef = useRef(null);
+  const touchpadRef = useRef(null);
+  const touchpadOriginRef = useRef({ x: 0, y: 0 });
   const lastTouchRef = useRef(null);
   const movedRef = useRef(false);
   const longPressFiredRef = useRef(false);
@@ -302,6 +396,15 @@ export default function App() {
       Animated.timing(tapMarkScale, { toValue: 2.8, duration: 520, useNativeDriver: true }),
     ]).start();
   }, [tapMarkOpacity, tapMarkScale]);
+
+  const updateTouchpadOrigin = useCallback(() => {
+    const node = touchpadRef.current;
+    if (node && typeof node.measureInWindow === 'function') {
+      node.measureInWindow((x, y) => {
+        if (typeof x === 'number' && typeof y === 'number') touchpadOriginRef.current = { x, y };
+      });
+    }
+  }, []);
 
   const openKeyboard = useCallback(() => {
     keyboardBuffer.current = ' ';
@@ -425,7 +528,10 @@ export default function App() {
       if (!t) return;
       startTouchRef.current = { x: t.pageX, y: t.pageY };
       lastTouchRef.current = { x: t.pageX, y: t.pageY };
-      startLocRef.current = { x: t.locationX ?? 0, y: t.locationY ?? 0 };
+      startLocRef.current = {
+        x: (t.pageX ?? t.locationX ?? 0) - (t.pageX != null ? touchpadOriginRef.current.x : 0),
+        y: (t.pageY ?? t.locationY ?? 0) - (t.pageY != null ? touchpadOriginRef.current.y : 0),
+      };
       movedRef.current = false;
       longPressFiredRef.current = false;
       dragSelectModeRef.current = false;
@@ -532,9 +638,9 @@ export default function App() {
     },
     onPanResponderRelease: (evt) => {
       clearLongPressTimer();
-      const t = evt.nativeEvent.touches?.[0] || evt.nativeEvent;
-      const x = t.locationX ?? 0;
-      const y = t.locationY ?? 0;
+      const t = evt.nativeEvent.changedTouches?.[0] || evt.nativeEvent.touches?.[0] || evt.nativeEvent;
+      const x = (t.pageX ?? t.locationX ?? 0) - (t.pageX != null ? touchpadOriginRef.current.x : 0);
+      const y = (t.pageY ?? t.locationY ?? 0) - (t.pageY != null ? touchpadOriginRef.current.y : 0);
       if (threeFingerRef.current) {
         send({ type: 'click', button: 'middle' });
         showTapMark(x, y);
@@ -656,11 +762,17 @@ export default function App() {
     <View style={[styles.touchRoot, { backgroundColor: c.bg2 }]}>
       <StatusBar hidden />
       <View style={styles.mainRow}>
-        <LinearGradient
-          colors={theme === 'dark' ? ['#182233', '#0e1520', '#141f2e'] : ['#fff9e6', '#fff0c2', '#fff6d5']}
+        <View
+          ref={touchpadRef}
+          onLayout={updateTouchpadOrigin}
           style={styles.touchArea}
           {...touchpadResponder.panHandlers}
         >
+          <LinearGradient
+            pointerEvents="none"
+            colors={theme === 'dark' ? ['#182233', '#0e1520', '#141f2e'] : ['#fff9e6', '#fff0c2', '#fff6d5']}
+            style={StyleSheet.absoluteFill}
+          />
           <View pointerEvents="none" style={StyleSheet.absoluteFill}>
             {dots.map((d, i) => (
               <View
@@ -681,7 +793,7 @@ export default function App() {
                   styles.tapMark,
                   {
                     left: tapMark.x - 38,
-                    top: tapMark.y - 38,
+                    top: tapMark.y - 54,
                     backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.35)' : c.accent + '38',
                     opacity: tapMarkOpacity,
                     transform: [{ scale: tapMarkScale }],
@@ -690,8 +802,8 @@ export default function App() {
               />
             )}
           </View>
-          <Image source={theme === 'dark' ? require('./assets/icon.png') : require('./assets/icon-light.png')} style={[styles.centerIcon, { opacity: theme === 'dark' ? 0.45 : 0.5 }]} />
-          <Text style={[styles.centerHint, { color: theme === 'dark' ? 'rgba(255,255,255,0.32)' : 'rgba(90,65,10,0.30)' }]}>Mobile Pad</Text>
+          <Image pointerEvents="none" source={theme === 'dark' ? require('./assets/icon.png') : require('./assets/icon-light.png')} style={[styles.centerIcon, { opacity: theme === 'dark' ? 0.45 : 0.5 }]} />
+          <Text pointerEvents="none" style={[styles.centerHint, { color: theme === 'dark' ? 'rgba(255,255,255,0.32)' : 'rgba(90,65,10,0.30)' }]}>Mobile Pad</Text>
 
           <Pressable
             style={({ pressed }) => [styles.settingsBtn, { backgroundColor: c.settingsBg, borderColor: c.btnBorder }, pressed && { opacity: 0.8, transform: [{ scale: 0.94 }] }]}
@@ -700,7 +812,7 @@ export default function App() {
             <Ionicons name="settings-sharp" size={30} color={c.text} />
           </Pressable>
 
-        </LinearGradient>
+        </View>
 
         {showScrollStrip && (
           <View style={[styles.scrollStrip, { backgroundColor: c.stripBg, borderLeftColor: c.stripBorder }]} {...scrollResponder.panHandlers}>
@@ -760,25 +872,7 @@ export default function App() {
                 <Ionicons name="close" size={24} color={c.text} />
               </Pressable>
             </View>
-            <Text style={[styles.modalLabel, { color: c.muted }]}>Sensitivity: {sensitivity.toFixed(1)}x</Text>
-            <View style={styles.sliderRow}>
-              <View
-                style={styles.sliderTrackWrap}
-                onLayout={(e) => { sliderWidthRef.current = e.nativeEvent.layout.width; }}
-                onStartShouldSetResponder={() => true}
-                onMoveShouldSetResponder={() => true}
-                onResponderGrant={(e) => updateSensitivityFromX(e.nativeEvent.locationX)}
-                onResponderMove={(e) => updateSensitivityFromX(e.nativeEvent.locationX)}
-              >
-                <View style={[styles.sliderTrack, { backgroundColor: c.inputBg, borderColor: c.inputBorder }]}>
-                  <View style={[styles.sliderFill, { backgroundColor: c.accent, width: `${((sensitivity - 1) / 7) * 100}%` }]} />
-                </View>
-                <View style={[styles.sliderThumb, { backgroundColor: c.accentBtn, left: `${((sensitivity - 1) / 7) * 100}%` }]} />
-              </View>
-              <Pressable style={[styles.resetBtn, { backgroundColor: c.presetBg, borderColor: c.inputBorder }]} onPress={() => setSensitivity(3)}>
-                <Ionicons name="refresh" size={20} color={c.text} />
-              </Pressable>
-            </View>
+            <SensitivitySlider value={sensitivity} onCommit={setSensitivity} c={c} />
 
             <View style={[styles.toggleRow, { borderTopColor: c.cardBorder }]}>
               <Text style={[styles.toggleLabel, { color: c.text }]}>Dark mode</Text>
